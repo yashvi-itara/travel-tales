@@ -1,0 +1,13 @@
+<!-- Single new comment — HTMX appends this after POST -->
+<div class="flex gap-4 animate-fade-in">
+    <div class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-teal/15 flex items-center justify-center text-brand-teal font-bold text-sm">
+        {{ current_user.username[0].upper() }}
+    </div>
+    <div class="flex-grow bg-gray-50 rounded-2xl rounded-tl-sm px-4 py-3 border border-gray-100">
+        <div class="flex items-baseline gap-2 mb-1">
+            <span class="font-semibold text-gray-800 text-sm">{{ current_user.username }}</span>
+            <span class="text-gray-400 text-xs">Just now</span>
+        </div>
+        <p class="text-gray-700 text-sm font-inter leading-relaxed">{{ comment.text }}</p>
+    </div>
+</div>

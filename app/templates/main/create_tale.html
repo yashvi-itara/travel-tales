@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Weave a Tale - Travel Tales{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-8 text-center sm:text-left">
+        <h1 class="font-playfair text-4xl font-bold text-gray-900 tracking-tight">Share Your Journey</h1>
+        <p class="mt-2 text-gray-600 font-inter text-lg">Every great adventure deserves to be told. Where did you go?</p>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-xl shadow-brand-teal/5 border border-gray-100 overflow-hidden">
+        <form action="{{ url_for('main.create_tale') }}" method="POST" enctype="multipart/form-data" 
+              class="p-8 sm:p-12 space-y-8"
+              hx-post="{{ url_for('main.create_tale') }}" 
+              hx-encoding="multipart/form-data"
+              hx-indicator="#submit-spinner"
+              id="createTaleForm">
+            
+            <!-- Hero Image Upload with Preview -->
+            <div class="relative group cursor-pointer" id="imageUploadContainer" onclick="document.getElementById('image').click()">
+                <div class="absolute inset-0 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300 group-hover:border-brand-teal group-hover:bg-brand-cream/50 transition-all z-0" id="dropzone"></div>
+                
+                <div class="relative z-10 py-20 px-4 text-center" id="uploadPrompt">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 group-hover:text-brand-teal transition-colors" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="flex text-sm text-gray-600 justify-center mt-4 font-medium">
+                        <span class="text-brand-teal hover:text-teal-800">Upload a hero image</span>
+                        <p class="pl-1">or drag and drop</p>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">PNG, JPG, WEBP up to 10MB</p>
+                </div>
+                
+                <!-- Preview Image Container -->
+                <img id="imagePreview" class="absolute inset-0 w-full h-full object-cover rounded-2xl hidden z-20" alt="Preview">
+                <div id="reselectOverlay" class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl hidden z-30">
+                    <span class="text-white font-medium bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm">Change Image</span>
+                </div>
+
+                <input id="image" name="image" type="file" class="sr-only" accept="image/*" onchange="previewImage(this)">
+            </div>
+
+            <!-- Title & Destination Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div class="space-y-2">
+                    <label for="title" class="block text-sm font-medium text-gray-700 font-inter">Tale Title</label>
+                    <input type="text" name="title" id="title" required placeholder="e.g. Midnight in Paris"
+                           class="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-brand-teal focus:border-transparent transition-all font-playfair text-lg text-gray-900 bg-gray-50 hover:bg-white focus:bg-white">
+                </div>
+                <div class="space-y-2">
+                    <label for="destination" class="block text-sm font-medium text-gray-700 font-inter">Destination</label>
+                    <input type="text" name="destination" id="destination" placeholder="e.g. Paris, France" required
+                           class="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-brand-teal focus:border-transparent transition-all font-inter text-gray-900 bg-gray-50 hover:bg-white focus:bg-white">
+                </div>
+            </div>
+
+            <!-- Category -->
+            <div class="space-y-2">
+                <label for="category" class="block text-sm font-medium text-gray-700 font-inter">Category</label>
+                <div class="relative">
+                    <select name="category" id="category" class="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-brand-teal focus:border-transparent transition-all font-inter text-gray-900 bg-gray-50 hover:bg-white focus:bg-white cursor-pointer">
+                        <option value="Adventure">🏕️ Adventure</option>
+                        <option value="Beach">🏖️ Beach</option>
+                        <option value="Mountain">⛰️ Mountain</option>
+                        <option value="City">🏙️ City</option>
+                        <option value="Foodie">🍜 Foodie</option>
+                        <option value="Road Trip">🚗 Road Trip</option>
+                        <option value="Cultural">🏛️ Cultural</option>
+                        <option value="Solo">🚶 Solo</option>
+                        <option value="Family">👨‍👩‍👧‍👦 Family</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Story Body -->
+            <div class="space-y-2">
+                <label for="content" class="block text-sm font-medium text-gray-700 font-inter">The Story</label>
+                <div class="relative">
+                    <textarea id="content" name="content" rows="10" placeholder="Once upon a time..."
+                              class="block w-full px-4 py-4 border border-gray-200 rounded-xl shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-brand-teal focus:border-transparent transition-all font-inter text-gray-800 bg-gray-50 hover:bg-white focus:bg-white resize-y"></textarea>
+                    
+                    <!-- Formatting Toolbar (Visual Vibes Only for Now) -->
+                    <div class="absolute bottom-3 left-3 flex gap-2">
+                        <button type="button" class="p-2 text-gray-400 hover:text-brand-teal transition-colors rounded hover:bg-gray-100"><strong class="font-bold font-serif">B</strong></button>
+                        <button type="button" class="p-2 text-gray-400 hover:text-brand-teal transition-colors rounded hover:bg-gray-100"><em class="font-serif italic">I</em></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings & Submit -->
+            <div class="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-gray-100 gap-6">
+                
+                <!-- Visibility Toggle -->
+                <div class="flex items-center">
+                    <button type="button" id="visibilityToggle" class="bg-brand-teal relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-teal focus:ring-offset-2" role="switch" aria-checked="true" onclick="toggleVisibility()">
+                        <span aria-hidden="true" id="visibilityKnob" class="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+                    </button>
+                    <span class="ml-3 text-sm">
+                        <span class="font-medium text-gray-900" id="visibilityLabel">Public Tale</span>
+                        <span class="text-gray-500" id="visibilityDesc"> (Everyone can see this)</span>
+                    </span>
+                    <input type="checkbox" name="is_public" id="is_public" class="hidden" checked>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full sm:w-auto flex justify-center items-center py-3 px-8 border border-transparent rounded-full shadow-lg text-base font-medium text-white bg-brand-teal hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-teal transition-all transform hover:-translate-y-0.5 group">
+                    <span>Publish Journey</span>
+                    <svg class="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    
+                    <svg id="submit-spinner" class="animate-spin ml-2 h-5 w-5 text-white htmx-indicator" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleVisibility() {
+        const checkbox = document.getElementById('is_public');
+        const toggle = document.getElementById('visibilityToggle');
+        const knob = document.getElementById('visibilityKnob');
+        const label = document.getElementById('visibilityLabel');
+        const desc = document.getElementById('visibilityDesc');
+        
+        checkbox.checked = !checkbox.checked;
+        
+        if(checkbox.checked) {
+            toggle.classList.replace('bg-gray-200', 'bg-brand-teal');
+            knob.classList.replace('translate-x-0', 'translate-x-5');
+            label.textContent = 'Public Tale';
+            desc.textContent = ' (Everyone can see this)';
+        } else {
+            toggle.classList.replace('bg-brand-teal', 'bg-gray-200');
+            knob.classList.replace('translate-x-5', 'translate-x-0');
+            label.textContent = 'Private Tale';
+            desc.textContent = ' (Only you can see this)';
+        }
+    }
+
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const preview = document.getElementById('imagePreview');
+                const prompt = document.getElementById('uploadPrompt');
+                const overlay = document.getElementById('reselectOverlay');
+                const dropzone = document.getElementById('dropzone');
+                
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+                overlay.classList.remove('hidden');
+                prompt.classList.add('hidden');
+                dropzone.classList.add('hidden');
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}

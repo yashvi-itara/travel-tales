@@ -1,0 +1,33 @@
+<!-- Save Button Partial — works for real tales -->
+{% if tale and not dummy_tales %}
+<button id="save-btn-{{ tale.id }}"
+        class="relative focus:outline-none transform transition-all duration-300 hover:scale-110 active:scale-95 group"
+        {% if current_user.is_authenticated %}
+        hx-post="{{ url_for('main.toggle_save', tale_id=tale.id) }}"
+        hx-swap="outerHTML"
+        {% else %}
+        onclick="window.location.href='{{ url_for('main.login') }}';"
+        {% endif %}>
+
+    <div class="flex items-center gap-1">
+        {% if is_saved %}
+        <svg class="w-6 h-6 text-brand-teal fill-current drop-shadow-sm transition-all duration-300" viewBox="0 0 20 20">
+            <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"></path>
+        </svg>
+        {% else %}
+        <svg class="w-6 h-6 text-gray-300 group-hover:text-brand-teal transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+        </svg>
+        {% endif %}
+        <span class="text-xs font-medium {{ 'text-brand-teal' if is_saved else 'text-gray-400' }}">{{ tale.saved_by.count() }}</span>
+    </div>
+</button>
+{% else %}
+<!-- Dummy / guest view — static bookmark -->
+<button class="flex items-center gap-1 text-gray-300 cursor-default">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+    </svg>
+    <span class="text-xs text-gray-400">{{ tale.views // 15 if tale else '8' }}</span>
+</button>
+{% endif %}

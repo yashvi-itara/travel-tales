@@ -1,0 +1,41 @@
+<!-- Like Button Partial — works for real tales and dummy tales -->
+{% if tale and not dummy_tales %}
+<button id="like-btn-{{ tale.id }}"
+        class="relative focus:outline-none transform transition-all duration-300 hover:scale-110 active:scale-95 group"
+        {% if current_user.is_authenticated %}
+        hx-post="{{ url_for('main.toggle_like', tale_id=tale.id) }}"
+        hx-swap="outerHTML"
+        hx-indicator="#like-spinner-{{ tale.id }}"
+        {% else %}
+        onclick="window.location.href='{{ url_for('main.login') }}';"
+        {% endif %}>
+
+    <div class="flex items-center gap-1">
+        {% if is_liked %}
+        <svg class="w-6 h-6 text-red-500 fill-current drop-shadow-sm transition-all duration-300" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+        </svg>
+        {% else %}
+        <svg class="w-6 h-6 text-gray-300 group-hover:text-red-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+        </svg>
+        {% endif %}
+        <span class="text-xs font-medium {{ 'text-red-500' if is_liked else 'text-gray-400' }}">{{ tale.likes.count() }}</span>
+    </div>
+
+    {% if is_liked %}
+    <span class="absolute -top-1 -right-1 flex h-2 w-2">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+    </span>
+    {% endif %}
+</button>
+{% else %}
+<!-- Dummy / unauthenticated view — static heart -->
+<button class="flex items-center gap-1 text-gray-300 cursor-default">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+    </svg>
+    <span class="text-xs text-gray-400">{{ tale.views // 10 if tale else '24' }}</span>
+</button>
+{% endif %}

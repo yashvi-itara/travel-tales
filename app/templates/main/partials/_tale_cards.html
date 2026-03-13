@@ -1,0 +1,79 @@
+{% set loop_tales = dummy_tales if dummy_tales else tales %}
+{% if loop_tales %}
+    {% for tale in loop_tales %}
+    <div class="block mb-4 break-inside-avoid shadow-lg rounded-2xl overflow-hidden bg-white transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl group cursor-pointer relative slide-up">
+        <!-- Image -->
+        <a href="{{ url_for('main.view_tale', slug=tale.slug) if not dummy_tales else '#' }}">
+            <div class="relative overflow-hidden">
+                <img src="{{ tale.image_url() }}"
+                     alt="{{ tale.title }}"
+                     class="w-full object-cover transform transition-transform duration-700 group-hover:scale-105 max-h-60">
+                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition duration-300"></div>
+                <!-- Category badge -->
+                {% if tale.category %}
+                <div class="absolute top-3 left-3 bg-white/80 backdrop-blur-sm text-brand-teal text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">
+                    {{ tale.category }}
+                </div>
+                {% endif %}
+            </div>
+        </a>
+
+        <div class="p-4">
+            <div class="flex justify-between items-start mb-2">
+                <a href="{{ url_for('main.view_tale', slug=tale.slug) if not dummy_tales else '#' }}"
+                   class="font-playfair text-xl font-bold text-gray-800 hover:text-brand-teal transition-colors leading-snug">
+                    {{ tale.title }}
+                </a>
+                <!-- Like + Save buttons -->
+                <div class="flex items-center gap-2 flex-shrink-0 ml-2" onclick="event.stopPropagation();">
+                    {% if dummy_tales %}
+                        {% set is_liked = false %}
+                        {% set is_saved = false %}
+                    {% else %}
+                        {% set is_liked = current_user.is_authenticated and tale.likes.filter_by(user_id=current_user.id).first() %}
+                        {% set is_saved = current_user.is_authenticated and tale in current_user.saved %}
+                    {% endif %}
+                    {% include 'main/partials/_like_button.html' %}
+                    {% include 'main/partials/_save_button.html' %}
+                </div>
+            </div>
+
+            <div class="inline-block bg-brand-cream text-brand-teal text-xs px-3 py-1 rounded-full font-semibold border border-brand-teal/20 mb-3">
+                📍 {{ tale.destination if dummy_tales else tale.destination }}
+            </div>
+
+            <!-- Author row — clickable to public profile -->
+            <div class="flex items-center justify-between text-sm text-gray-500 mt-2 border-t border-gray-50 pt-3">
+                <span class="flex items-center gap-1.5 font-medium">
+                    <svg class="w-4 h-4 text-brand-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    {{ tale.views }}
+                </span>
+
+                {% if not dummy_tales and tale.author %}
+                <a href="{{ url_for('profiles.public_profile', username=tale.author.username) }}"
+                   class="flex items-center gap-2 group/author hover:text-brand-teal transition-colors"
+                   onclick="event.stopPropagation();">
+                    <div class="w-6 h-6 rounded-full bg-brand-teal/15 flex items-center justify-center text-brand-teal font-bold text-xs flex-shrink-0 group-hover/author:bg-brand-teal group-hover/author:text-white transition-colors">
+                        {{ tale.author.username[0].upper() }}
+                    </div>
+                    <span class="italic font-playfair text-xs">{{ tale.author.username }}</span>
+                </a>
+                {% else %}
+                <span class="italic font-playfair text-xs">{{ tale.author_name if dummy_tales else 'Wanderer' }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="col-span-full py-20 text-center block break-inside-avoid">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-brand-cream/50 mb-6 slide-up">
+            <svg class="w-10 h-10 text-brand-teal/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+        </div>
+        <h3 class="font-playfair text-2xl font-bold text-gray-800 mb-2">The world is waiting for your story</h3>
+        <p class="text-gray-500 font-inter max-w-md mx-auto mb-8">No tales found in this category yet. Be the first to weave a story of adventure!</p>
+        <a href="{{ url_for('main.create_tale') }}" class="inline-flex items-center gap-2 bg-brand-teal text-white px-8 py-3 rounded-full font-bold shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
+            <span>✨ Start Your Tale</span>
+        </a>
+    </div>
+{% endif %}

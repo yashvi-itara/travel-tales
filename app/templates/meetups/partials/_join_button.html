@@ -1,0 +1,21 @@
+{% if is_own %}
+<span class="text-xs text-gray-400 italic">Your meetup</span>
+{% elif status == 'joined' or already_joined %}
+<button hx-post="{{ url_for('meetups.join_meetup', meetup_id=meetup.id) }}"
+        hx-swap="outerHTML"
+        class="text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-teal text-white hover:bg-red-500 transition-colors group/btn flex items-center gap-1">
+    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+    <span class="group-hover/btn:hidden">Joined!</span>
+    <span class="hidden group-hover/btn:inline">Leave</span>
+</button>
+{% elif current_user.is_authenticated %}
+<button hx-post="{{ url_for('meetups.join_meetup', meetup_id=meetup.id) }}"
+        hx-swap="outerHTML"
+        class="text-xs font-semibold px-3 py-1.5 rounded-full border-2 border-brand-teal text-brand-teal hover:bg-brand-teal hover:text-white transition-all">
+    + Join
+</button>
+{% else %}
+<a href="{{ url_for('main.login') }}" class="text-xs font-semibold px-3 py-1.5 rounded-full border-2 border-brand-teal text-brand-teal hover:bg-brand-teal hover:text-white transition-all">
+    + Join
+</a>
+{% endif %}

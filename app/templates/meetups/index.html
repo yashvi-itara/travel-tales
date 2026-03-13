@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Travel Buddies - Find Your Adventure Crew{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Hero Header -->
+    <div class="text-center mb-12">
+        <div class="inline-flex items-center gap-2 bg-brand-teal/10 text-brand-teal px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
+            🌍 Community Feature
+        </div>
+        <h1 class="font-playfair text-5xl font-bold text-gray-900 mb-4">Find Your Travel Crew</h1>
+        <p class="text-lg text-gray-500 font-inter max-w-2xl mx-auto">Connect with fellow wanderers heading to the same places. Join a meetup, or create your own adventure.</p>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('meetups.create_meetup') }}" class="inline-flex items-center gap-2 mt-6 bg-brand-teal text-white font-semibold px-6 py-3 rounded-full shadow-md hover:bg-teal-800 transition-all transform hover:-translate-y-0.5">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Post a Meetup
+        </a>
+        {% else %}
+        <a href="{{ url_for('main.register') }}" class="inline-flex items-center gap-2 mt-6 bg-brand-teal text-white font-semibold px-6 py-3 rounded-full shadow-md hover:bg-teal-800 transition-all">
+            Join the Community ✨
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filters -->
+    <div class="mb-10">
+        <form id="meetupFilters"
+              hx-get="{{ url_for('meetups.get_meetups') }}"
+              hx-target="#meetup-grid"
+              hx-trigger="change, searchChange"
+              hx-indicator="#meetup-spinner"
+              class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+
+            <!-- Category Chips -->
+            <div class="flex flex-wrap gap-2">
+                <input type="hidden" name="category" id="meetupCategory" value="all">
+                <button type="button" class="meetupCat active-cat px-4 py-1.5 rounded-full bg-brand-teal text-white text-sm font-medium whitespace-nowrap" data-cat="all" onclick="setMeetupCat(this)">All</button>
+                <button type="button" class="meetupCat px-4 py-1.5 rounded-full bg-white border border-gray-200 text-gray-600 text-sm font-medium hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-cat="hiking" onclick="setMeetupCat(this)">🥾 Hiking</button>
+                <button type="button" class="meetupCat px-4 py-1.5 rounded-full bg-white border border-gray-200 text-gray-600 text-sm font-medium hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-cat="food tour" onclick="setMeetupCat(this)">🍜 Food Tour</button>
+                <button type="button" class="meetupCat px-4 py-1.5 rounded-full bg-white border border-gray-200 text-gray-600 text-sm font-medium hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-cat="cultural" onclick="setMeetupCat(this)">🏛️ Cultural</button>
+                <button type="button" class="meetupCat px-4 py-1.5 rounded-full bg-white border border-gray-200 text-gray-600 text-sm font-medium hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-cat="adventure" onclick="setMeetupCat(this)">⚡ Adventure</button>
+                <button type="button" class="meetupCat px-4 py-1.5 rounded-full bg-white border border-gray-200 text-gray-600 text-sm font-medium hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-cat="photography" onclick="setMeetupCat(this)">📸 Photography</button>
+            </div>
+
+            <!-- Right Controls -->
+            <div class="flex gap-3 items-center flex-shrink-0">
+                <!-- Destination Search -->
+                <div class="relative">
+                    <input type="text" name="destination" placeholder="Filter by city…"
+                           class="pl-9 pr-4 py-2 rounded-full border border-gray-200 text-sm font-inter focus:outline-none focus:ring-2 focus:ring-brand-teal bg-white shadow-sm w-48"
+                           hx-get="{{ url_for('meetups.get_meetups') }}"
+                           hx-target="#meetup-grid"
+                           hx-trigger="keyup changed delay:400ms"
+                           hx-include="#meetupFilters">
+                    <svg class="absolute left-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+
+                <!-- Sort -->
+                <div class="relative">
+                    <select name="sort" class="appearance-none bg-white border border-gray-200 text-gray-700 py-2 pl-4 pr-8 rounded-full text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-teal cursor-pointer shadow-sm">
+                        <option value="newest">Newest</option>
+                        <option value="soonest">Soonest</option>
+                        <option value="responses">Most Interest</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Meetup Grid -->
+    <div class="relative min-h-[400px]">
+        <div id="meetup-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+             hx-get="{{ url_for('meetups.get_meetups') }}"
+             hx-trigger="load">
+        </div>
+        <div id="meetup-spinner" class="htmx-indicator absolute inset-0 flex items-center justify-center z-10">
+            <svg class="animate-spin h-10 w-10 text-brand-teal" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<script>
+function setMeetupCat(btn) {
+    document.getElementById('meetupCategory').value = btn.dataset.cat;
+    document.querySelectorAll('.meetupCat').forEach(b => {
+        b.classList.remove('active-cat', 'bg-brand-teal', 'text-white');
+        b.classList.add('bg-white', 'border', 'border-gray-200', 'text-gray-600');
+    });
+    btn.classList.add('active-cat', 'bg-brand-teal', 'text-white');
+    btn.classList.remove('bg-white', 'border', 'border-gray-200', 'text-gray-600');
+    htmx.trigger('#meetupFilters', 'searchChange');
+}
+</script>
+{% endblock %}

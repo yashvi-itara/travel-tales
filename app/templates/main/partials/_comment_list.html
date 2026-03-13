@@ -1,0 +1,27 @@
+<!-- Comment List Partial - included in view_tale.html -->
+<div id="comment-list" class="space-y-4">
+{% for comment in comments %}
+<div class="flex gap-4 group animate-fade-in">
+    <!-- Avatar -->
+    <div class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-teal/15 flex items-center justify-center text-brand-teal font-bold text-sm">
+        {{ comment.author.username[0].upper() }}
+    </div>
+
+    <!-- Bubble -->
+    <div class="flex-grow bg-gray-50 rounded-2xl rounded-tl-sm px-4 py-3 border border-gray-100">
+        <div class="flex items-baseline gap-2 mb-1">
+            <span class="font-semibold text-gray-800 text-sm">{{ comment.author.username }}</span>
+            <span class="text-gray-400 text-xs">{{ comment.created_at.strftime('%b %d, %Y at %H:%M') }}</span>
+        </div>
+        <p class="text-gray-700 text-sm font-inter leading-relaxed">{{ comment.text }}</p>
+    </div>
+</div>
+{% endfor %}
+
+{% if not comments %}
+<div class="text-center py-8 text-gray-400 font-inter text-sm" id="empty-comments">
+    <div class="text-3xl mb-2">💬</div>
+    Be the first to leave a comment!
+</div>
+{% endif %}
+</div>

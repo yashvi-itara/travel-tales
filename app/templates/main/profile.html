@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - Travel Tales{% endblock %}
+
+{% block content %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- Profile Header -->
+    <div class="bg-white rounded-3xl shadow-xl shadow-brand-teal/5 border border-gray-100 p-8 sm:p-12 mb-12 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+        <!-- Vibe Background Pattern -->
+        <div class="absolute top-0 right-0 -mt-16 -mr-16 text-brand-teal/5">
+            <svg class="w-64 h-64 transform rotate-12" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        
+        <div class="w-32 h-32 rounded-full bg-brand-cream border-4 border-white shadow-lg flex-shrink-0 flex items-center justify-center relative z-10">
+            <span class="font-playfair font-bold text-5xl text-brand-teal">{{ current_user.username[0]|upper }}</span>
+        </div>
+        
+        <div class="text-center md:text-left relative z-10 flex-grow">
+            <h1 class="font-playfair text-4xl font-bold text-gray-900 mb-2">{{ current_user.username }}</h1>
+            <p class="text-gray-500 font-inter">{{ current_user.email }}</p>
+            
+            <div class="flex items-center justify-center md:justify-start gap-6 mt-6">
+                <!-- Stat block -->
+                <div class="text-center">
+                    <p class="font-playfair text-2xl font-bold text-brand-teal">{{ current_user.tales.count() }}</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Journeys</p>
+                </div>
+                <div class="w-px h-8 bg-gray-200"></div>
+                <div class="text-center">
+                    <p class="font-playfair text-2xl font-bold text-brand-teal">
+                        <!-- Total views calculation - just a visual representation for now -->
+                        {% set total_views = namespace(value=0) %}
+                        {% for tale in current_user.tales %}
+                            {% set total_views.value = total_views.value + tale.views %}
+                        {% endfor %}
+                        {{ total_views.value }}
+                    </p>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Total Views</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="relative z-10">
+            <a href="{{ url_for('main.create_tale') }}" class="inline-block bg-brand-teal text-white font-medium px-6 py-3 rounded-full shadow-md hover:bg-teal-800 transition-all transform hover:-translate-y-0.5">
+                Record New Journey
+            </a>
+        </div>
+    </div>
+
+    <!-- My Travel Map Section -->
+    <div class="mb-16">
+        <h2 class="font-playfair text-3xl font-bold text-gray-900 mb-6 flex items-center">
+            My Travel Map
+            <span id="visited-counter" class="text-xl font-inter text-gray-400 font-normal ml-3"></span>
+        </h2>
+        
+        {% if current_user.tales.count() > 0 %}
+        <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden relative">
+            <div id="travel-map" class="w-full h-[500px] z-0"></div>
+            
+            <!-- Map Legend -->
+            <div class="absolute bottom-6 left-6 bg-white/90 backdrop-blur-md px-4 py-3 rounded-xl shadow-md z-[400] text-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="w-3 h-3 rounded-full bg-brand-teal"></div>
+                    <span class="font-medium text-gray-700">Public Tales</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-orange-500"></div>
+                    <span class="font-medium text-gray-700">Private Journals</span>
+                </div>
+            </div>
+            
+            <!-- Map Loading Overlay -->
+            <div id="map-loading" class="absolute inset-0 bg-white/70 backdrop-blur-sm z-[500] flex flex-col items-center justify-center transition-opacity duration-500">
+                <svg class="animate-spin h-12 w-12 text-brand-teal mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="font-playfair font-medium text-lg text-gray-700" id="map-status-text">Charting your journeys...</p>
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-3xl p-12 text-center">
+            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <h3 class="font-playfair text-2xl font-bold text-gray-800 mb-2">Your map is waiting</h3>
+            <p class="text-gray-500 font-inter mb-6">Create your first tale to start populating your magical travel map.</p>
+            <a href="{{ url_for('main.create_tale') }}" class="inline-block bg-brand-teal text-white font-medium px-6 py-2 rounded-full hover:bg-teal-800 transition-colors">Start your journey</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Tabs Container -->
+    <div class="mb-8">
+        <div class="flex space-x-4 border-b border-gray-200" 
+             hx-target="#tales-container"
+             hx-indicator="#tales-spinner">
+            
+            <!-- Public Tab Button -->
+            <button class="tab-btn active px-6 py-4 font-medium text-brand-teal border-b-2 border-brand-teal focus:outline-none transition-colors"
+                    hx-get="{{ url_for('main.profile_tales', tab='public') }}"
+                    onclick="switchTab(this)">
+                Public Tales
+            </button>
+            
+            <!-- Private Tab Button -->
+            <button class="tab-btn px-6 py-4 font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 focus:outline-none transition-colors"
+                    hx-get="{{ url_for('main.profile_tales', tab='private') }}"
+                    onclick="switchTab(this)">
+                Private Journals  <span class="inline-flex items-center ml-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Secret</span>
+            </button>
+            
+            <!-- Saved Tab Button -->
+            <button class="tab-btn px-6 py-4 font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 focus:outline-none transition-colors group"
+                    hx-get="{{ url_for('main.profile_tales', tab='saved') }}"
+                    onclick="switchTab(this)">
+                Saved <svg class="inline-block w-4 h-4 ml-1 text-gray-400 group-hover:text-brand-teal transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Masonry Grid for User Tales -->
+    <div class="relative min-h-[400px]">
+        <!-- Initial load fetches public tales automatically -->
+        <div id="tales-container" class="masonry w-full transition-opacity duration-300"
+             hx-get="{{ url_for('main.profile_tales', tab='public') }}" 
+             hx-trigger="load">
+        </div>
+        
+        <!-- Loading Spinner -->
+        <div id="tales-spinner" class="htmx-indicator absolute inset-0 flex items-center justify-center bg-brand-cream/50 backdrop-blur-sm z-10 transition-opacity">
+            <svg class="animate-spin h-10 w-10 text-brand-teal" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(clickedTab) {
+        // Reset all tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('text-brand-teal', 'border-brand-teal');
+            btn.classList.add('text-gray-500', 'border-transparent');
+            
+            // Re-add hover states to inactive tabs
+            btn.classList.add('hover:text-gray-700', 'hover:border-gray-300');
+        });
+        
+        // Emphasize clicked tab
+        clickedTab.classList.remove('text-gray-500', 'border-transparent', 'hover:text-gray-700', 'hover:border-gray-300');
+        clickedTab.classList.add('text-brand-teal', 'border-brand-teal');
+    }
+</script>
+
+<!-- Empty div used by HTMX to load modals -->
+<div id="modal-container"></div>
+
+{% if current_user.tales.count() > 0 %}
+<script>
+    // Inject tales data from Python to JS safely
+    const userTales = [
+        {% for tale in current_user.tales %}
+        {
+            id: {{ tale.id }},
+            title: {{ tale.title | tojson }},
+            destination: {{ tale.destination | tojson }},
+            is_public: {{ 'true' if tale.is_public else 'false' }},
+            slug: {{ tale.slug | tojson }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Initialize Map
+        const map = L.map('travel-map', {
+            zoomControl: false // Add Custom later
+        }).setView([20, 0], 2);
+
+        // Map Styling - Use CartoDB Positron for a super clean wanderlust aesthetic
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+        
+        L.control.zoom({ position: 'topright' }).addTo(map);
+
+        const markers = [];
+        const coordinates = [];
+
+        // Simple sleep function to respect Nominatim rate limit (1 req/s)
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        for (const tale of userTales) {
+            let lat, lon;
+            const cacheKey = 'geo_' + tale.destination.toLowerCase();
+            const cachedCoords = localStorage.getItem(cacheKey);
+
+            if (cachedCoords) {
+                const parts = cachedCoords.split(',');
+                lat = parseFloat(parts[0]);
+                lon = parseFloat(parts[1]);
+            } else {
+                // Update loading text
+                document.getElementById('map-status-text').innerText = `Locating ${tale.destination}...`;
+                
+                try {
+                    // Fetch coords from Nominatim
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(tale.destination)}&limit=1`);
+                    const data = await res.json();
+                    
+                    if (data && data.length > 0) {
+                        lat = parseFloat(data[0].lat);
+                        lon = parseFloat(data[0].lon);
+                        localStorage.setItem(cacheKey, `${lat},${lon}`);
+                    }
+                    // Sleep to avoid rate limiting
+                    await sleep(1100);
+                } catch (e) {
+                    console.error("Geocoding failed for", tale.destination, e);
+                }
+            }
+
+            if (lat && lon) {
+                coordinates.push([lat, lon]);
+
+                // Create custom Tailwind icons for Public (Teal) and Private (Orange)
+                const pinColorClass = tale.is_public ? 'bg-brand-teal' : 'bg-orange-500';
+                
+                const customIcon = L.divIcon({
+                    className: 'custom-pin',
+                    html: `
+                        <div class="relative group cursor-pointer">
+                            <div class="w-5 h-5 ${pinColorClass} rounded-full border-2 border-white shadow-md transform group-hover:scale-125 transition-transform"></div>
+                            <div class="absolute w-full h-full ${pinColorClass} rounded-full animate-ping opacity-30 top-0 left-0"></div>
+                        </div>
+                    `,
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+
+                // Create Marker
+                const marker = L.marker([lat, lon], {icon: customIcon}).addTo(map);
+
+                // Attach HTMX modal trigger to marker click
+                marker.on('click', function() {
+                    // We trigger HTMX manually on a hidden element or directly via JS
+                    htmx.ajax('GET', `/tale/${tale.slug}/modal`, {target: '#modal-container', swap: 'innerHTML'});
+                });
+                
+                markers.push(marker);
+            }
+        }
+
+        // Draw Polyline connecting journeys chronologically
+        if (coordinates.length > 1) {
+            L.polyline(coordinates, {
+                color: '#0f766e',
+                weight: 2,
+                opacity: 0.4,
+                dashArray: '5, 10'
+            }).addTo(map);
+        }
+
+        // Fit map bounds to show all markers
+        if (markers.length > 0) {
+            const group = new L.featureGroup(markers);
+            map.fitBounds(group.getBounds().pad(0.1));
+            
+            // Update counter
+            const uniqueDestinations = new Set(userTales.map(t => t.destination)).size;
+            document.getElementById('visited-counter').innerText = `· ${uniqueDestinations} Place${uniqueDestinations !== 1 ? 's' : ''} Visited`;
+        }
+
+        // Hide loading overlay
+        const loadingOverlay = document.getElementById('map-loading');
+        loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => loadingOverlay.remove(), 500);
+    });
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tale.title }} - Travel Tales{% endblock %}
+
+{% block content %}
+<!-- Full-width Hero Image -->
+<div class="relative w-full h-[60vh] sm:h-[70vh] lg:h-[80vh] bg-gray-900 border-b-8 border-brand-teal">
+    {% if tale.image_file and tale.image_file.startswith('__ext__') %}
+        <img src="{{ tale.image_file[7:] }}" alt="{{ tale.title }}" class="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay">
+    {% elif tale.image_file %}
+        <img src="{{ url_for('static', filename='uploads/' + tale.image_file) }}" alt="{{ tale.title }}" class="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay">
+    {% else %}
+        <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600&q=80" alt="{{ tale.title }}" class="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay">
+    {% endif %}
+    
+    <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/40 to-transparent"></div>
+    
+    <div class="absolute bottom-0 left-0 right-0 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 z-10">
+        <div class="inline-block bg-brand-teal text-white text-sm px-4 py-1.5 rounded-full font-semibold tracking-wide mb-6 shadow-lg backdrop-blur-sm bg-opacity-90 transform -rotate-1">{{ tale.destination }}</div>
+        
+        <h1 class="font-playfair text-5xl sm:text-6xl md:text-7xl font-bold text-white mb-6 leading-tight text-shadow-lg">{{ tale.title }}</h1>
+        
+        <div class="flex items-center gap-6 text-gray-200">
+            <div class="flex items-center gap-3">
+                <a href="{{ url_for('profiles.public_profile', username=tale.author.username) if tale.author else '#' }}" class="group/author flex items-center gap-3">
+                    {% if tale.author and tale.author.avatar_url %}
+                    <img src="{{ tale.author.avatar_url }}" alt="{{ tale.author.username }}" class="w-12 h-12 rounded-full object-cover shadow-inner border-2 border-white/20 transform group-hover/author:scale-110 transition-transform duration-300">
+                    {% else %}
+                    <div class="w-12 h-12 rounded-full bg-brand-cream text-brand-teal flex items-center justify-center font-playfair font-bold text-xl shadow-inner border-2 border-white/20 transform group-hover/author:scale-110 transition-transform duration-300">
+                        {{ tale.author.username[0]|upper if tale.author else 'W' }}
+                    </div>
+                    {% endif %}
+                    <div>
+                        <p class="font-medium text-white italic font-playfair text-lg group-hover/author:underline decoration-brand-teal decoration-2 underline-offset-4">by {{ tale.author.username if tale.author else 'Wanderer' }}</p>
+                        <p class="text-sm opacity-80 font-inter">{{ tale.created_at.strftime('%B %d, %Y') }}</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="h-10 w-px bg-white/30 hidden sm:block"></div>
+            
+            <div class="hidden sm:flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20">
+                <svg class="w-5 h-5 text-brand-cream/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                <span class="font-medium text-white" id="viewCount">{{ tale.views }} views</span>
+            </div>
+            
+            <!-- Hidden HTMX trigger to increment view count on load -->
+            <div hx-post="{{ url_for('main.record_view', slug=tale.slug) }}" hx-trigger="load" hx-target="#viewCount" hx-swap="innerHTML" class="hidden"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Article Content -->
+<article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+    
+    <!-- Action Bar (Sticky Mobile) -->
+    <div class="flex items-center justify-between py-6 border-b border-gray-200 mb-12 sticky top-16 bg-brand-cream/95 backdrop-blur-md z-40 px-4 -mx-4 sm:static sm:bg-transparent sm:z-auto sm:px-0 sm:mx-0">
+        <div class="flex gap-4">
+            <!-- Like Button from Partial -->
+            <div class="flex items-center gap-2 text-gray-500 group">
+                {% set is_liked = current_user.is_authenticated and tale.likes.filter_by(user_id=current_user.id).first() %}
+                {% include 'main/partials/_like_button.html' %}
+                <span class="font-medium hidden sm:inline ml-1">Love</span>
+            </div>
+            
+            <!-- Save Button from Partial -->
+            <div class="flex items-center gap-2 text-gray-500 group ml-2">
+                {% set is_saved = current_user.is_authenticated and tale in current_user.saved %}
+                {% include 'main/partials/_save_button.html' %}
+                <span class="font-medium hidden sm:inline ml-1">Save</span>
+            </div>
+        </div>
+        
+        {% if current_user.is_authenticated and current_user.id == tale.user_id %}
+        <div>
+            <a href="#" class="text-sm font-medium text-gray-500 border border-gray-300 px-4 py-2 rounded-full hover:border-brand-teal hover:text-brand-teal transition-colors focus:ring-2 focus:ring-brand-teal focus:outline-none">Edit Tale</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Editorial Content -->
+    <div class="prose prose-lg prose-teal max-w-none font-inter text-gray-700 leading-relaxed first-letter:float-left first-letter:text-7xl first-letter:pr-4 first-letter:font-playfair first-letter:text-brand-teal">
+        <!-- We use simple whitespace to br filter for now to preserve lines -->
+        {{ tale.content | replace('\n', '<br>') | safe }}
+    </div>
+
+    <!-- Bottom Decoration -->
+    <div class="mt-20 text-center">
+        <svg class="w-12 h-12 mx-auto text-gray-300 mb-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <h3 class="font-playfair text-2xl text-gray-800 italic">End of the journey.</h3>
+        
+        <!-- Find Buddies CTA -->
+        <a href="{{ url_for('meetups.index') }}?destination={{ tale.destination | urlencode }}"
+           class="inline-flex items-center gap-2 mt-6 bg-brand-teal/10 text-brand-teal hover:bg-brand-teal/20 font-semibold px-6 py-3 rounded-full transition-all">
+            🌍 Find travel buddies for {{ tale.destination }}
+        </a>
+
+        <a href="{{ url_for('main.index') }}" class="inline-block mt-4 border-b-2 border-brand-teal text-brand-teal font-medium hover:text-teal-800 hover:border-teal-800 transition-colors pb-1">
+            ← Back to Explore
+        </a>
+    </div>
+</article>
+
+<!-- Comments Section -->
+<section class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+    <h2 class="font-playfair text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+        💬 Discussion
+        <span class="font-inter text-lg font-normal text-gray-400">{{ tale.comments.count() }} comment{{ 's' if tale.comments.count() != 1 else '' }}</span>
+    </h2>
+
+    <!-- Comment Form -->
+    {% if current_user.is_authenticated %}
+    <form id="comment-form"
+          hx-post="{{ url_for('main.post_comment', tale_id=tale.id) }}"
+          hx-target="#comment-list"
+          hx-swap="beforeend"
+          hx-on::after-request="this.reset(); document.getElementById('char-count').textContent = '0 / 500'; document.getElementById('empty-comments')?.remove()"
+          class="mb-10 bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+        <div class="flex gap-4">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-brand-teal/15 flex items-center justify-center text-brand-teal font-bold">
+                {{ current_user.username[0].upper() }}
+            </div>
+            <div class="flex-grow">
+                <textarea name="text" rows="3" maxlength="500" required
+                          class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-teal resize-none font-inter text-gray-800 bg-gray-50 text-sm"
+                          placeholder="Share your thoughts on this journey..."
+                          oninput="document.getElementById('char-count').textContent = this.value.length + ' / 500'"></textarea>
+                <div class="flex items-center justify-between mt-2">
+                    <span class="text-xs text-gray-400 font-inter" id="char-count">0 / 500</span>
+                    <button type="submit" class="bg-brand-teal text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-teal-800 transition-colors shadow-sm">
+                        Post Comment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    {% else %}
+    <div class="mb-10 bg-brand-cream rounded-3xl border border-brand-teal/20 p-6 text-center">
+        <p class="text-gray-600 font-inter mb-3">Join the conversation!</p>
+        <a href="{{ url_for('main.login') }}" class="text-brand-teal font-semibold hover:underline">Sign in</a> to post a comment.
+    </div>
+    {% endif %}
+
+    <!-- Existing Comments -->
+    {% set comments = tale.comments.all() %}
+    {% include 'main/partials/_comment_list.html' %}
+</section>
+
+{% endblock %}
+

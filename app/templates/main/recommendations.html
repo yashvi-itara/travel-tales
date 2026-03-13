@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Top Picks - Travel Tales{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- Header Section -->
+    <div class="text-center mb-12">
+        <h1 class="font-playfair text-5xl font-bold text-gray-900 mb-4 tracking-tight">Curated Top Picks</h1>
+        <p class="text-lg text-gray-600 font-inter max-w-2xl mx-auto">Discover the best things to do, see, and eat in the world's most spectacular destinations.</p>
+    </div>
+
+    <!-- Filters & Sorting controls -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        
+        <!-- Filter Form driven by HTMX -->
+        <form id="filterForm" class="w-full flex flex-col md:flex-row justify-between items-center gap-4" hx-get="{{ url_for('main.get_recommendations') }}" hx-target="#masonry-grid" hx-trigger="change, filterChange" hx-indicator="#grid-spinner">
+            
+            <!-- Horizontal Scrollable Chips -->
+            <div class="flex gap-3 overflow-x-auto pb-2 w-full md:w-auto overflow-hidden hide-scrollbar" id="categoryTabs">
+                <input type="hidden" name="category" id="categoryInput" value="all">
+                
+                <button type="button" class="category-btn active px-5 py-2 rounded-full bg-brand-teal text-white shadow font-medium whitespace-nowrap transform transition-all" data-category="all" onclick="setCategory(this)">All Picks</button>
+                <button type="button" class="category-btn px-5 py-2 rounded-full bg-white text-gray-600 shadow-sm border border-gray-100 hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-category="shopping" onclick="setCategory(this)">🛍️ Shopping</button>
+                <button type="button" class="category-btn px-5 py-2 rounded-full bg-white text-gray-600 shadow-sm border border-gray-100 hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-category="food" onclick="setCategory(this)">🍽️ Food</button>
+                <button type="button" class="category-btn px-5 py-2 rounded-full bg-white text-gray-600 shadow-sm border border-gray-100 hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-category="hidden gems" onclick="setCategory(this)">💎 Hidden Gems</button>
+                <button type="button" class="category-btn px-5 py-2 rounded-full bg-white text-gray-600 shadow-sm border border-gray-100 hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-category="famous spots" onclick="setCategory(this)">📸 Famous Spots</button>
+            </div>
+
+            <!-- Sort Dropdown -->
+            <div class="w-full md:w-auto flex items-center justify-end">
+                <div class="relative">
+                    <select name="sort" class="appearance-none bg-white border border-gray-200 text-gray-700 py-2 px-6 pr-10 rounded-full font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent transition-shadow cursor-pointer">
+                        <option value="popular">Most Popular</option>
+                        <option value="likes">Most Liked</option>
+                        <option value="newest">Newest Added</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Masonry Grid Wrapper relative for loading spinner -->
+    <div class="relative min-h-[400px]">
+        <!-- Masonry Grid loading via HTMX -->
+        <div id="masonry-grid" class="masonry w-full transition-opacity duration-300" 
+             hx-get="{{ url_for('main.get_recommendations') }}" 
+             hx-trigger="load">
+        </div>
+
+        <div id="grid-spinner" class="htmx-indicator absolute inset-0 flex items-center justify-center bg-brand-cream/50 backdrop-blur-sm z-10 transition-opacity">
+            <div class="text-center py-20 w-full block break-inside-avoid">
+                <svg class="animate-spin h-10 w-10 text-brand-teal mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-gray-500 font-playfair italic">Curating top spots...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setCategory(btn) {
+        document.getElementById('categoryInput').value = btn.dataset.category;
+        
+        document.querySelectorAll('.category-btn').forEach(b => {
+            b.classList.remove('bg-brand-teal', 'text-white', 'shadow');
+            b.classList.add('bg-white', 'text-gray-600', 'shadow-sm', 'border', 'border-gray-100');
+        });
+        
+        btn.classList.remove('bg-white', 'text-gray-600', 'shadow-sm', 'border', 'border-gray-100');
+        btn.classList.add('bg-brand-teal', 'text-white', 'shadow');
+        
+        htmx.trigger('#filterForm', 'filterChange');
+    }
+</script>
+{% endblock %}

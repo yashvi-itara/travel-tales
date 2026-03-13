@@ -1,0 +1,7 @@
+Flask==3.1.3
+Flask-SQLAlchemy
+Flask-Login
+Werkzeug
+gunicorn
+gevent
+python-dotenv

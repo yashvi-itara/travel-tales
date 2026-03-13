@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Database
+instance/
+*.db
+!app/seed_data/*.db
+
+# IDEs
+.vscode/
+.idea/
+.gemini/
+
+# Docker
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Deployment
+*.pem
+deploy.sh

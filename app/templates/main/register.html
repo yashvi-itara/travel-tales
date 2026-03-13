@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Start a Tale - Travel Tales{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
+        <svg class="w-12 h-12 text-brand-teal mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+        <h2 class="font-playfair text-4xl font-bold text-gray-900 tracking-tight">Start your journey.</h2>
+        <p class="mt-2 text-sm text-gray-600 font-inter">
+            Already wandering with us? 
+            <a href="{{ url_for('main.login') }}" class="font-medium text-brand-teal hover:text-teal-800 transition-colors">Log in to your account</a>
+        </p>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white py-8 px-4 shadow-xl shadow-brand-teal/5 sm:rounded-2xl sm:px-10 border border-gray-100">
+            {% include "main/partials/_register_form.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}

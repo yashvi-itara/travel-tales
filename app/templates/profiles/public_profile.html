@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}{{ profile_user.username }}'s Profile - Travel Tales{% endblock %}
+
+{% block content %}
+<!-- Toast container (auto-dismisses) -->
+<div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+<!-- ── HERO ── -->
+<div class="relative bg-gradient-to-br from-brand-teal/5 via-white to-brand-cream/40 border-b border-gray-100">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14 flex flex-col sm:flex-row items-center sm:items-start gap-8">
+
+        <!-- Avatar -->
+        <div class="flex-shrink-0">
+            {% if profile_user.avatar_url %}
+            <img src="{{ profile_user.avatar_url }}" alt="{{ profile_user.username }}"
+                 class="w-28 h-28 rounded-full object-cover shadow-xl ring-4 ring-white">
+            {% else %}
+            <div class="w-28 h-28 rounded-full bg-gradient-to-br from-brand-teal to-teal-700 flex items-center justify-center text-white font-playfair font-bold text-5xl shadow-xl ring-4 ring-white">
+                {{ profile_user.username[0].upper() }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Info -->
+        <div class="flex-grow text-center sm:text-left">
+            <h1 class="font-playfair text-4xl font-bold text-gray-900 mb-1">{{ profile_user.username }}</h1>
+            {% if profile_user.bio %}
+            <p class="text-gray-500 font-inter text-base max-w-xl mb-4 italic">{{ profile_user.bio }}</p>
+            {% else %}
+            <p class="text-gray-400 font-inter text-sm mb-4 italic">No bio yet — the road is their story.</p>
+            {% endif %}
+
+            <!-- Stats row -->
+            <div class="flex flex-wrap gap-6 justify-center sm:justify-start mb-6 text-sm">
+                <div class="text-center">
+                    <div class="font-bold text-2xl text-gray-900 font-playfair">{{ profile_user.tales.filter_by(is_public=True).count() }}</div>
+                    <div class="text-gray-400 text-xs uppercase tracking-wide">Tales</div>
+                </div>
+                <div class="w-px bg-gray-200 hidden sm:block"></div>
+                <div class="text-center">
+                    <div class="font-bold text-2xl text-gray-900 font-playfair">{{ profile_user.total_likes_received() }}</div>
+                    <div class="text-gray-400 text-xs uppercase tracking-wide">Likes</div>
+                </div>
+                <div class="w-px bg-gray-200 hidden sm:block"></div>
+                <div class="text-center">
+                    <div class="font-bold text-2xl text-gray-900 font-playfair">{{ profile_user.places_visited() }}</div>
+                    <div class="text-gray-400 text-xs uppercase tracking-wide">Places</div>
+                </div>
+                <div class="w-px bg-gray-200 hidden sm:block"></div>
+                <div class="text-center">
+                    <div class="font-bold text-2xl text-gray-900 font-playfair">{{ profile_user.followers.count() }}</div>
+                    <div class="text-gray-400 text-xs uppercase tracking-wide">Followers</div>
+                </div>
+                <div class="w-px bg-gray-200 hidden sm:block"></div>
+                <div class="text-center">
+                    <div class="font-bold text-2xl text-gray-900 font-playfair">{{ profile_user.following.count() }}</div>
+                    <div class="text-gray-400 text-xs uppercase tracking-wide">Following</div>
+                </div>
+            </div>
+
+            <!-- Follow / Edit Button -->
+            <div id="follow-btn-wrapper">
+                {% include 'profiles/partials/_follow_button.html' %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex gap-0 border-b border-gray-200" id="profile-tabs">
+            <button class="profile-tab active-tab px-5 py-3 text-sm font-semibold text-brand-teal border-b-2 border-brand-teal -mb-px transition-colors"
+                    data-tab="tales"
+                    onclick="switchTab(this)"
+                    hx-get="{{ url_for('profiles.profile_tales', username=profile_user.username) }}"
+                    hx-target="#profile-content"
+                    hx-trigger="click"
+                    hx-indicator="#profile-spinner">
+                ✍️ Tales
+            </button>
+            <button class="profile-tab px-5 py-3 text-sm font-semibold text-gray-400 hover:text-gray-600 border-b-2 border-transparent -mb-px transition-colors"
+                    data-tab="recs"
+                    onclick="switchTab(this)"
+                    hx-get="{{ url_for('profiles.profile_recs', username=profile_user.username) }}"
+                    hx-target="#profile-content"
+                    hx-trigger="click"
+                    hx-indicator="#profile-spinner">
+                📍 Top Picks
+            </button>
+            {% if is_own %}
+            <button class="profile-tab px-5 py-3 text-sm font-semibold text-gray-400 hover:text-gray-600 border-b-2 border-transparent -mb-px transition-colors"
+                    data-tab="saved"
+                    onclick="switchTab(this)"
+                    hx-get="{{ url_for('main.profile_tales') }}?tab=saved"
+                    hx-target="#profile-content"
+                    hx-trigger="click"
+                    hx-indicator="#profile-spinner">
+                🔖 Saved
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ── TAB CONTENT ── -->
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative min-h-64">
+    <div id="profile-spinner" class="htmx-indicator absolute inset-0 flex items-center justify-center z-10">
+        <svg class="animate-spin h-10 w-10 text-brand-teal" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+    </div>
+
+    <div id="profile-content"
+         class="columns-1 sm:columns-2 lg:columns-3 gap-6"
+         hx-get="{{ url_for('profiles.profile_tales', username=profile_user.username) }}"
+         hx-trigger="load"
+         hx-indicator="#profile-spinner">
+    </div>
+</div>
+
+<script>
+function switchTab(btn) {
+    document.querySelectorAll('.profile-tab').forEach(t => {
+        t.classList.remove('active-tab', 'text-brand-teal', 'border-brand-teal');
+        t.classList.add('text-gray-400', 'border-transparent');
+    });
+    btn.classList.add('active-tab', 'text-brand-teal', 'border-brand-teal');
+    btn.classList.remove('text-gray-400', 'border-transparent');
+}
+</script>
+{% endblock %}

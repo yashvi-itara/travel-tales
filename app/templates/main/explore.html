@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Explore - Travel Tales{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- Header Section -->
+    <div class="text-center mb-10">
+        <h1 class="font-playfair text-5xl font-bold text-gray-900 mb-4 tracking-tight">Wander the World</h1>
+        <p class="text-lg text-gray-600 font-inter max-w-2xl mx-auto">Discover stunning travel journals, hidden gems, and breathtaking photography inspired by journeys across the globe.</p>
+    </div>
+
+    <!-- Featured Recommendations -->
+    <div class="mb-12 animate-fade-in">
+        <h2 class="font-playfair text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            🔥 Trending Destinations
+        </h2>
+        
+        <div class="flex gap-4 sm:gap-6 overflow-x-auto pb-6 snap-x hide-scrollbar" style="scrollbar-width: none; -ms-overflow-style: none;">
+            <style>
+                .hide-scrollbar::-webkit-scrollbar { display: none; }
+            </style>
+            
+            <!-- Trending 1 -->
+            <div class="cursor-pointer flex-none w-44 sm:w-56 h-60 sm:h-72 rounded-3xl overflow-hidden relative group snap-start shadow-md hover:shadow-xl transition-shadow" onclick="document.querySelector('[data-category=\'city\']').click()">
+                <img src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=600&q=80" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent"></div>
+                <div class="absolute top-4 right-4 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/30">
+                    <span class="text-white text-xs font-bold tracking-wider uppercase">Most Visited</span>
+                </div>
+                <div class="absolute bottom-5 left-5 right-5 text-left">
+                    <h3 class="text-white font-playfair font-bold text-xl sm:text-2xl drop-shadow-md mb-1">Paris</h3>
+                    <p class="text-brand-cream text-xs sm:text-sm font-medium flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        City Explorer
+                    </p>
+                </div>
+            </div>
+
+            <!-- Trending 2 -->
+            <div class="cursor-pointer flex-none w-44 sm:w-56 h-60 sm:h-72 rounded-3xl overflow-hidden relative group snap-start shadow-md hover:shadow-xl transition-shadow" onclick="document.querySelector('[data-category=\'mountain\']').click()">
+                <img src="https://images.unsplash.com/photo-1531366936337-778536f452bd?w=600&q=80" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent"></div>
+                <div class="absolute top-4 right-4 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/30">
+                    <span class="text-white text-xs font-bold tracking-wider uppercase">Hot</span>
+                </div>
+                <div class="absolute bottom-5 left-5 right-5 text-left">
+                    <h3 class="text-white font-playfair font-bold text-xl sm:text-2xl drop-shadow-md mb-1">Swiss Alps</h3>
+                    <p class="text-brand-cream text-xs sm:text-sm font-medium flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Mountain Peaks
+                    </p>
+                </div>
+            </div>
+
+            <!-- Trending 3 -->
+            <div class="cursor-pointer flex-none w-44 sm:w-56 h-60 sm:h-72 rounded-3xl overflow-hidden relative group snap-start shadow-md hover:shadow-xl transition-shadow" onclick="document.querySelector('[data-category=\'beach\']').click()">
+                <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&q=80" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent"></div>
+                <div class="absolute top-4 right-4 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/30">
+                    <span class="text-white text-xs font-bold tracking-wider uppercase">Top Choice</span>
+                </div>
+                <div class="absolute bottom-5 left-5 right-5 text-left">
+                    <h3 class="text-white font-playfair font-bold text-xl sm:text-2xl drop-shadow-md mb-1">Bali</h3>
+                    <p class="text-brand-cream text-xs sm:text-sm font-medium flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Tropical Beach
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Trending 4 -->
+            <div class="cursor-pointer flex-none w-44 sm:w-56 h-60 sm:h-72 rounded-3xl overflow-hidden relative group snap-start shadow-md hover:shadow-xl transition-shadow" onclick="document.querySelector('[data-category=\'cultural\']').click()">
+                <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent"></div>
+                <div class="absolute bottom-5 left-5 right-5 text-left">
+                    <h3 class="text-white font-playfair font-bold text-xl sm:text-2xl drop-shadow-md mb-1">Kyoto</h3>
+                    <p class="text-brand-cream text-xs sm:text-sm font-medium flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Cultural Hub
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Trending 5 -->
+            <div class="cursor-pointer flex-none w-44 sm:w-56 h-60 sm:h-72 rounded-3xl overflow-hidden relative group snap-start shadow-md hover:shadow-xl transition-shadow" onclick="document.querySelector('[data-category=\'adventure\']').click()">
+                <img src="https://images.unsplash.com/photo-1551608779-d3dd6e5667dc?w=600&q=80" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent"></div>
+                <div class="absolute bottom-5 left-5 right-5 text-left">
+                    <h3 class="text-white font-playfair font-bold text-xl sm:text-2xl drop-shadow-md mb-1">Patagonia</h3>
+                    <p class="text-brand-cream text-xs sm:text-sm font-medium flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Wild Adventure
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters & Sorting controls -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        
+        <!-- Filter Form driven by HTMX -->
+        <form id="filterForm" class="w-full flex flex-col md:flex-row justify-between items-center gap-4" hx-get="/explore/tales" hx-target="#masonry-grid" hx-trigger="change, filterChange" hx-indicator="#grid-spinner">
+            
+            <!-- Horizontal Scrollable Chips -->
+            <div class="flex gap-3 overflow-x-auto pb-2 w-full md:w-auto overflow-hidden hide-scrollbar" id="categoryTabs">
+                <input type="hidden" name="category" id="categoryInput" value="all">
+                
+                <button type="button" class="category-btn active px-5 py-2 rounded-full bg-brand-teal text-white shadow font-medium whitespace-nowrap transform transition-all" data-category="all" onclick="setCategory(this)">All</button>
+                <button type="button" class="category-btn px-5 py-2 rounded-full bg-white text-gray-600 shadow-sm border border-gray-100 hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-category="beach" onclick="setCategory(this)">🏖️ Beach</button>
+                <button type="button" class="category-btn px-5 py-2 rounded-full bg-white text-gray-600 shadow-sm border border-gray-100 hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-category="mountain" onclick="setCategory(this)">⛰️ Mountain</button>
+                <button type="button" class="category-btn px-5 py-2 rounded-full bg-white text-gray-600 shadow-sm border border-gray-100 hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-category="city" onclick="setCategory(this)">🏙️ City</button>
+                <button type="button" class="category-btn px-5 py-2 rounded-full bg-white text-gray-600 shadow-sm border border-gray-100 hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-category="adventure" onclick="setCategory(this)">🏕️ Adventure</button>
+                <button type="button" class="category-btn px-5 py-2 rounded-full bg-white text-gray-600 shadow-sm border border-gray-100 hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-category="foodie" onclick="setCategory(this)">🍜 Foodie</button>
+                <button type="button" class="category-btn px-5 py-2 rounded-full bg-white text-gray-600 shadow-sm border border-gray-100 hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-category="road trip" onclick="setCategory(this)">🚗 Road Trip</button>
+                <button type="button" class="category-btn px-5 py-2 rounded-full bg-white text-gray-600 shadow-sm border border-gray-100 hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-category="cultural" onclick="setCategory(this)">🏛️ Cultural</button>
+                <button type="button" class="category-btn px-5 py-2 rounded-full bg-white text-gray-600 shadow-sm border border-gray-100 hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-category="solo" onclick="setCategory(this)">🚶 Solo</button>
+                <button type="button" class="category-btn px-5 py-2 rounded-full bg-white text-gray-600 shadow-sm border border-gray-100 hover:border-brand-teal hover:text-brand-teal transition-all whitespace-nowrap" data-category="family" onclick="setCategory(this)">👨‍👩‍👧‍👦 Family</button>
+            </div>
+
+            <!-- Sort Dropdown -->
+            <div class="w-full md:w-auto flex items-center justify-end">
+                <div class="relative">
+                    <select name="sort" class="appearance-none bg-white border border-gray-200 text-gray-700 py-2 px-6 pr-10 rounded-full font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent transition-shadow cursor-pointer">
+                        <option value="views">Most Viewed</option>
+                        <option value="newest">Newest First</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Masonry Grid Wrapper relative for loading spinner -->
+    <div class="relative min-h-[400px]">
+        <!-- Masonry Grid loading via HTMX -->
+        <div id="masonry-grid" class="masonry w-full transition-opacity duration-300" 
+             hx-get="/explore/tales" 
+             hx-trigger="load">
+        </div>
+
+        <div id="grid-spinner" class="htmx-indicator absolute inset-0 flex items-center justify-center bg-brand-cream/50 backdrop-blur-sm z-10 transition-opacity">
+            <div class="text-center py-20 w-full block break-inside-avoid">
+                <svg class="animate-spin h-10 w-10 text-brand-teal mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-gray-500 font-playfair italic">Fetching magical tales...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setCategory(btn) {
+        // Update hidden input
+        document.getElementById('categoryInput').value = btn.dataset.category;
+        
+        // Reset all buttons
+        document.querySelectorAll('.category-btn').forEach(b => {
+            b.classList.remove('bg-brand-teal', 'text-white', 'shadow');
+            b.classList.add('bg-white', 'text-gray-600', 'shadow-sm', 'border', 'border-gray-100');
+        });
+        
+        // Set active button
+        btn.classList.remove('bg-white', 'text-gray-600', 'shadow-sm', 'border', 'border-gray-100');
+        btn.classList.add('bg-brand-teal', 'text-white', 'shadow');
+        
+        // Trigger generic custom event so HTMX catches it
+        htmx.trigger('#filterForm', 'filterChange');
+    }
+</script>
+{% endblock %}
