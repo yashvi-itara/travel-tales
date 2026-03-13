@@ -1,0 +1,30 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 52.90.173.84 >> ~/.ssh/known_hosts
+
+      - name: Deploy via SCP & SSH
+        run: |
+          tar -czf travel-tales.tar.gz .
+          scp -i ~/.ssh/id_rsa travel-tales.tar.gz ec2-user@52.90.173.84:~/travel-tales/
+          ssh -i ~/.ssh/id_rsa ec2-user@52.90.173.84 << 'EOF'
+            mkdir -p ~/travel-tales
+            tar -xzf ~/travel-tales/travel-tales.tar.gz -C ~/travel-tales
+            cd ~/travel-tales
+            # docker compose --profile prod up --build -d
+          EOF
